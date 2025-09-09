@@ -51,7 +51,7 @@ def login(driver):
             driver.refresh()
             time.sleep(3)
         except FileNotFoundError:
-            print("⚠️ cookies.json not found, falling back to email/password login.")
+            print(" cookies.json not found, falling back to email/password login.")
 
         # Test if logged in
         driver.get("https://www.linkedin.com")
@@ -59,7 +59,7 @@ def login(driver):
         print(f"Page title: {driver.title}")
 
         if "log in" in driver.title.lower() or "login" in driver.current_url:
-            print("❌ Cookie-based login failed or no valid cookies, attempting email/password login...")
+            print(" Cookie-based login failed or no valid cookies, attempting email/password login...")
             driver.get("https://www.linkedin.com/login")
             WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.TAG_NAME, "body")))
             print(f"Login page title: {driver.title}")
@@ -92,17 +92,17 @@ def login(driver):
 
             # Check for CAPTCHA or 2FA
             if any(x in driver.current_url for x in ["checkpoint", "verification", "challenge"]):
-                print("⚠️ CAPTCHA or 2FA detected! Solve it manually in the browser window.")
+                print(" CAPTCHA or 2FA detected! Solve it manually in the browser window.")
                 while any(x in driver.current_url for x in ["checkpoint", "verification", "challenge"]):
                     time.sleep(5)
-                print("✅ Verification solved.")
+                print(" Verification solved.")
             else:
-                print("✅ Email/password login successful.")
+                print(" Email/password login successful.")
         else:
-            print("✅ Cookie-based login successful.")
+            print(" Cookie-based login successful.")
 
     except Exception as e:
-        print(f"❌ Login failed: {e}")
+        print(f" Login failed: {e}")
         raise
 
 # ==============================
@@ -157,7 +157,7 @@ def scrape_profile(url, driver):
         company = company.strip()
         location = location.strip()
 
-        print(f"✅ Scraped: {url}")
+        print(f" Scraped: {url}")
         return {
             "Linkedin_Link": url,
             "name": name,
@@ -166,7 +166,7 @@ def scrape_profile(url, driver):
             "location": location
         }
     except Exception as e:
-        print(f"❌ Failed to scrape {url}: {e}")
+        print(f" Failed to scrape {url}: {e}")
         return {"Linkedin_Link": url, "name": "", "job_title": "", "company": "", "location": ""}
 
 # ==============================
@@ -188,20 +188,20 @@ def main():
         login(driver)
         for batch_start in range(0, len(urls), BATCH_SIZE):
             batch = urls[batch_start:batch_start + BATCH_SIZE]
-            print(f"\n🚀 Starting batch {batch_start//BATCH_SIZE + 1}: {batch}")
+            print(f"\n Starting batch {batch_start//BATCH_SIZE + 1}: {batch}")
             for url in batch:
                 data = scrape_profile(url, driver)
                 results.append(data)
                 wait_time = random.randint(*DELAY_BETWEEN_PROFILES)
                 print(f"⏳ Waiting {wait_time} seconds...")
                 time.sleep(wait_time)
-            print("😴 Cooling down for 2 minutes...")
+            print(" Cooling down for 2 minutes...")
             time.sleep(120)
     finally:
         driver.quit()
 
     pd.DataFrame(results).to_csv(OUTPUT_FILE, index=False)
-    print(f"\n✅ Saved results to {OUTPUT_FILE}")
+    print(f"\n Saved results to {OUTPUT_FILE}")
 
 # ==============================
 # RUN
